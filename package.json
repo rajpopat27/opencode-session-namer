@@ -1,0 +1,10 @@
+{
+  "name": "opencode-session-namer",
+  "version": "0.1.0",
+  "description": "Names opencode sessions after the git worktree branch and agent",
+  "main": "index.ts",
+  "exports": {
+    "./server": "./index.ts"
+  },
+  "type": "module"
+}
