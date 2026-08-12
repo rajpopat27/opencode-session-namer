@@ -14,13 +14,14 @@ async function worktreeName(cwd: string): Promise<string | undefined> {
   try {
     const branch = await git(cwd, ["branch", "--show-current"])
     if (branch) return branch
-    const top = await git(cwd, ["rev-parse", "--show-toplevel"])
-    if (top) return top.split("/").pop() || top
-  } catch {}
+  } catch {
+    return undefined
+  }
   return undefined
 }
 
-export const NameSessionsPlugin: Plugin = async ({ client, project, directory }) => {
+export const NameSessionsPlugin: Plugin = async ({ client, directory }) => {
+  console.error("[name-sessions] plugin loaded", { directory })
   const named = new Set<string>()
 
   const isIdle = (event: any) =>
@@ -33,8 +34,9 @@ export const NameSessionsPlugin: Plugin = async ({ client, project, directory })
       const sessionID: string | undefined = event?.properties?.sessionID
       if (!sessionID || named.has(sessionID)) return
 
-      const gitDir = project?.worktree && project.worktree !== "/" ? project.worktree : directory
-      const branch = gitDir ? await worktreeName(gitDir) : undefined
+      if (!directory) return
+      const branch = await worktreeName(directory)
+      console.error("[name-sessions] branch", branch)
       if (!branch) return
 
       try {
@@ -43,6 +45,7 @@ export const NameSessionsPlugin: Plugin = async ({ client, project, directory })
           .filter((m: any) => m.info?.role === "assistant")
           .pop()
         const agent: string | undefined = lastAssistant?.info?.mode
+        console.error("[name-sessions] agent", agent, "messages", (messages.data ?? []).length)
         if (!agent) return
 
         await client.session.update({
