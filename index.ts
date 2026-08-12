@@ -21,7 +21,6 @@ async function worktreeName(cwd: string): Promise<string | undefined> {
 }
 
 export const NameSessionsPlugin: Plugin = async ({ client, directory }) => {
-  console.error("[name-sessions] plugin loaded", { directory })
   const named = new Set<string>()
 
   const isIdle = (event: any) =>
@@ -36,7 +35,6 @@ export const NameSessionsPlugin: Plugin = async ({ client, directory }) => {
 
       if (!directory) return
       const branch = await worktreeName(directory)
-      console.error("[name-sessions] branch", branch)
       if (!branch) return
 
       try {
@@ -45,7 +43,6 @@ export const NameSessionsPlugin: Plugin = async ({ client, directory }) => {
           .filter((m: any) => m.info?.role === "assistant")
           .pop()
         const agent: string | undefined = lastAssistant?.info?.mode
-        console.error("[name-sessions] agent", agent, "messages", (messages.data ?? []).length)
         if (!agent) return
 
         await client.session.update({
@@ -53,9 +50,7 @@ export const NameSessionsPlugin: Plugin = async ({ client, directory }) => {
           body: { title: `${branch} · ${agent}` },
         })
         named.add(sessionID)
-        console.error(`[name-sessions] renamed ${sessionID} -> ${branch} · ${agent}`)
       } catch (err) {
-        console.error("[name-sessions] failed to rename session:", err)
       }
     },
   }

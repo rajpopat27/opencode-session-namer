@@ -1,6 +1,6 @@
 {
   "name": "opencode-session-namer",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Names opencode sessions after the git worktree branch and agent",
   "main": "index.ts",
   "exports": {
